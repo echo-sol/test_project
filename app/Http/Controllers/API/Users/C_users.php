@@ -124,6 +124,10 @@ class C_users extends Controller{
 
 /************* GET/READ  *************/
 
+        function reply(Request $reqs){  
+            return 'testing';
+        }
+
     // [GET] api/users <-- Get all lists
         function list(Request $reqs, $direct = false){  
             $response = array();

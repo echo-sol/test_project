@@ -52,4 +52,8 @@ $API_VERSION = "API\\";
         // DELETE
         Route::delete($cont.'/{id}', $path.'@delete')->middleware('client');
         Route::delete($cont.'/delete/{id}', $path.'@harddelete')->middleware('client');
-    
+        
+    /******************** sandbox *******************/
+
+    // CREATE
+    Route::get('sandbox',$path.'@reply')->middleware('client');
