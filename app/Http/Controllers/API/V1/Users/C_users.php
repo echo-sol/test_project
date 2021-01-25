@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Users;
+namespace App\Http\Controllers\API\V1\Users;
 
 // STANDARD CORE
 use App\Http\Controllers\Controller;
@@ -13,7 +13,8 @@ use App\Http\Models\API\V1\Users\M_users as M_default;
 class C_users extends Controller{
 
     private $module = "user";
-    private $create_required = ['user_role_id'];
+    private $create_required = ['email','password','password_confirm','user_role_id','status','created_by'];
+    private $create_user_chains = ['m_users','m_user_details'];
 
 /************* CREATE  *************/
 
@@ -22,8 +23,8 @@ class C_users extends Controller{
 
             $response = array();
 
-            if($this->validation($this->create_required, $reqs)){
-                dd( $reqs);
+            if($this->validation($this->create_user_chains, $reqs)){
+
                 $users_inputs = (object) $reqs->input($this->create_user_chains[0]);
                 $user_details_inputs = (object) $reqs->input($this->create_user_chains[1]);
 
@@ -90,11 +91,9 @@ class C_users extends Controller{
                 }
             
             }else{
-
                 $response["status"] = False;
                 $response["msg"] = "Missing parameters";
                 $response["debug"] = "Missing parent parameters";
-                dd( $response);
             }
 
             return response()->json($response);
@@ -126,10 +125,6 @@ class C_users extends Controller{
 
 /************* GET/READ  *************/
 
-        function reply(Request $reqs){  
-            return 'testing';
-        }
-
     // [GET] api/users <-- Get all lists
         function list(Request $reqs, $direct = false){  
             $response = array();
@@ -152,7 +147,29 @@ class C_users extends Controller{
             
             // HIDE SUPER
             $cdata->where('m_users.user_role_id','>','0');
-    
+
+            
+            $cdata->leftjoin('m_user_roles', 'm_user_roles.user_role_id', '=', 'm_users.user_role_id')
+                ->leftjoin('m_user_details', 'm_user_details.user_id', '=', 'm_users.user_id')
+                ->leftjoin('m_cities', 'm_user_details.city_id', '=', 'm_cities.city_id')
+                ->leftjoin('m_states', 'm_user_details.state_id', '=', 'm_states.state_id')
+                ->leftjoin('m_countries', 'm_user_details.country_id', '=', 'm_countries.country_id')
+                ->select(
+                'm_users.username', 
+                'm_users.email', 
+                'm_users.facebook', 
+                'm_users.google', 
+                'm_users.user_role_id', 
+                'm_users.status',
+                'm_user_roles.name as user_role_name', 
+                'm_user_roles.description as user_role_description', 
+                'm_user_details.*',
+
+                'm_cities.name as city_name',
+                'm_states.name as state_name',
+                'm_countries.name as country_name'
+
+                );
 
                 if($paginate){
                     $cdata = $cdata->paginate(10);
