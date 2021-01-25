@@ -22,8 +22,8 @@ class C_users extends Controller{
 
             $response = array();
 
-            if($this->validation($this->create_user_chains, $reqs)){
-
+            if($this->validation($this->create_required, $reqs)){
+                dd( $reqs);
                 $users_inputs = (object) $reqs->input($this->create_user_chains[0]);
                 $user_details_inputs = (object) $reqs->input($this->create_user_chains[1]);
 
@@ -90,9 +90,11 @@ class C_users extends Controller{
                 }
             
             }else{
+
                 $response["status"] = False;
                 $response["msg"] = "Missing parameters";
                 $response["debug"] = "Missing parent parameters";
+                dd( $response);
             }
 
             return response()->json($response);
