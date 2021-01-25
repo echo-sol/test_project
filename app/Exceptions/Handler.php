@@ -2,8 +2,11 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+
+use Throwable, Exception, Request, Response;
 
 class Handler extends ExceptionHandler
 {
@@ -32,7 +35,7 @@ class Handler extends ExceptionHandler
      * @param  \Throwable  $exception
      * @return void
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function report(Throwable $exception)
     {
@@ -50,6 +53,30 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+
+        // INVALID METHOD
+        if($exception instanceof MethodNotAllowedHttpException) {
+            $response = array(
+                "status" => FALSE,
+                "msg" => $exception->getMessage()
+            );
+            return response()->json($response, 405);
+        }
+
+        
+
         return parent::render($request, $exception);
+    }
+
+
+    /************* OVERWITES  *************/
+    
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        $response = array(
+            "status" => FALSE,
+            "msg" => $exception->getMessage()
+        );
+        return response()->json($response, 401);
     }
 }
